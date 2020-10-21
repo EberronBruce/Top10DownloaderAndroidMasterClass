@@ -3,6 +3,8 @@ package com.redravencomputing.top10downloader
 import android.util.Log
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ParseApplications {
     private val tagParseApplications = "ParseApplications"
@@ -22,11 +24,11 @@ class ParseApplications {
             var eventType = xpp.eventType
             var currentRecord = FeedEntry()
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                val tagName = xpp.name?.toLowerCase()
+                val tagName = xpp.name?.toLowerCase(Locale.getDefault())
                 when (eventType) {
 
                     XmlPullParser.START_TAG -> {
-                        Log.d(tagParseApplications, "parse: Starting tag for " + tagName)
+                        Log.d(tagParseApplications, "parse: Starting tag for $tagName")
                         if(tagName == "entry") {
                             inEntry = true
                         }
@@ -35,7 +37,7 @@ class ParseApplications {
                     XmlPullParser.TEXT -> textValue = xpp.text
 
                     XmlPullParser.END_TAG -> {
-                        Log.d(tagParseApplications, "parse: Ending tag for " + tagName)
+                        Log.d(tagParseApplications, "parse: Ending tag for $tagName")
                         if (inEntry) {
                             when (tagName) {
                                 "entry" -> {
