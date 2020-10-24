@@ -30,6 +30,8 @@ class FeedEntry {
 }
 
 private const val INVALIDATED = "INVALIDATED"
+private const val STATE_URL = "feedUrl"
+private const val STATE_LIMIT = "feedLimit"
 
 class MainActivity : AppCompatActivity() {
     private val tagMain = "MainActivity"
@@ -39,8 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var feedLimit = 10
 
     private var feedChachedUrl = INVALIDATED
-    private val STATE_URL = "feedUrl"
-    private val STATE_LIMIT = "feedLimit"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
