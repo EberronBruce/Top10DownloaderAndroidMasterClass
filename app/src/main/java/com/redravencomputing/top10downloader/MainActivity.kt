@@ -29,6 +29,8 @@ class FeedEntry {
     }
 }
 
+private const val INVALIDATED = "INVALIDATED"
+
 class MainActivity : AppCompatActivity() {
     private val tagMain = "MainActivity"
     private var downloadData: DownloadData? = null
@@ -36,19 +38,36 @@ class MainActivity : AppCompatActivity() {
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
     private var feedLimit = 10
 
+    private var feedChachedUrl = INVALIDATED
+    private val STATE_URL = "feedUrl"
+    private val STATE_LIMIT = "feedLimit"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Log.d(tagMain, "onCreate called")
+
+        if (savedInstanceState != null) {
+            feedUrl = savedInstanceState.getString(STATE_URL) ?: feedUrl
+            feedLimit = savedInstanceState.getInt(STATE_LIMIT)
+        }
 
         downloadUrl(feedUrl.format(feedLimit))
         Log.d(tagMain, "onCreate done")
     }
 
     private fun downloadUrl(feedUrl: String) {
-        Log.d(tagMain, "downloadUrl starting AsyncTask")
-        downloadData = DownloadData(this, xmlListView)
-        downloadData?.execute(feedUrl)
-        Log.d(tagMain, "downloadUrl done")
+        if (feedUrl != feedChachedUrl) {
+            Log.d(tagMain, "downloadUrl starting AsyncTask")
+            downloadData = DownloadData(this, xmlListView)
+            downloadData?.execute(feedUrl)
+            Log.d(tagMain, "downloadUrl done")
+            feedChachedUrl = feedUrl
+        } else {
+            Log.d(tagMain, "downloadUrl - URL not changed")
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -81,6 +100,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d(tagMain, "onOptionItemSelected: ${item.title} setting feedLimit unchanged")
                 }
             }
+            R.id.mnuRefresh -> feedChachedUrl = INVALIDATED
             else ->
                 return super.onOptionsItemSelected(item)
         }
@@ -88,6 +108,14 @@ class MainActivity : AppCompatActivity() {
         downloadUrl(feedUrl.format(feedLimit))
         return true
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(STATE_URL, feedUrl)
+        outState.putInt(STATE_LIMIT, feedLimit)
+    }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
